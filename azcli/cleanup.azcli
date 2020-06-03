@@ -1,0 +1,2 @@
+# Delete the previously create Resource Group
+az group delete -n tt-aks-webinar --yes --no-wait

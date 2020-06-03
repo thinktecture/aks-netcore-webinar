@@ -1,0 +1,22 @@
+# Create a Resource Group
+az group create -n tt-aks-webinar -l westeurope
+
+# Create an ACR instance
+az acr create -n ttakswebinar -g tt-aks-webinar --sku Basic --admin-enabled false
+
+# Grab the ACR ID
+ACR_ID=$(az acr show -n ttakswebinar -g tt-aks-webinar --query id -o tsv)
+
+# Create the AKS Cluster
+az aks create -n ttakswebinar -g tt-aks-webinar --enable-managed-identity --node-count 2 --attach-acr $ACR_ID
+
+# Login to ACR
+az acr login -n ttakswebinar
+
+## Create Docker image
+# Ensure in root folder of the repo
+cd ..
+docker build . -t ttakswebinar.azurecr.io/webinar/api:0.0.1
+
+# push Docker image to ACR
+docker push ttakswebinar.azurecr.io/webinar/api:0.0.1
