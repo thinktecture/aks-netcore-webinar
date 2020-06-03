@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: webinar
+  name: webinar
+  namespace: webinar
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webinar
+  template:
+    metadata:
+      labels:
+        app: webinar
+    spec:
+      containers:
+      - image: ttakswebinar.azurecr.io/webinar/api:0.0.1
+        name: api
+        envFrom:
+          - configMapRef:
+              name: webinar-config
+        volumeMounts:
+          - name: write-file-target
+            mountPath: /var/tt
+        ports:
+          - containerPort: 5000
+            name: http
+        readinessProbe:
+            httpGet:
+              port: 5000
+              path: /health/ready
+            timeoutSeconds: 2
+        livenessProbe:
+            httpGet:
+              port: 5000
+              path: /health/healthy
+            periodSeconds: 20
+            timeoutSeconds: 1
+            initialDelaySeconds: 20
+        resources:
+          requests:
+            cpu: 200m
+            memory: 64Mi
+          limits:
+            cpu: 400m
+            memory: 128Mi
+      volumes:
+        - name: write-file-target
+          persistentVolumeClaim:
+              claimName: azure-files

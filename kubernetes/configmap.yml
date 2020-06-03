@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  webinar__listLimit: "10"
+kind: ConfigMap
+metadata:
+  name: webinar-config
+  namespace: webinar
